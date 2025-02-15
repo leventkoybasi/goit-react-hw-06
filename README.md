@@ -1,4 +1,4 @@
-# Phonebook Application
+# Phonebook Application with Redux
 
 [![Project Preview](./src/assets/image/project-screenshot.png)](https://goit-react-hw-03-levent.vercel.app/)
 
