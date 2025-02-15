@@ -1,12 +1,21 @@
-/* eslint-disable react/prop-types */
-import Contact from "./Contact";
-import style from "../App.module.css";
+import Contact from './Contact';
+import style from '../App.module.css';
+import { useSelector, useDispatch } from 'react-redux';
+import { removeContact } from '../store/contactsSlice';
 
-function ContactList({ contact, setContact }) {
+function ContactList() {
+  const dispatch = useDispatch();
+  const contacts = useSelector((state) => state.contacts.contacts);
+  const searchTerm = useSelector((state) => state.filters.searchTerm);
+
+  const filteredContacts = contacts.filter(
+    (item) =>
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.phone.toString().includes(searchTerm) ||
+      item.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   const handleDelete = (id) => {
-    const updatedContacts = contact.filter((item) => item.id !== id);
-    setContact(updatedContacts);
-    window.localStorage.setItem("Contacts", JSON.stringify(updatedContacts));
+    dispatch(removeContact(id));
   };
 
   return (
@@ -22,7 +31,7 @@ function ContactList({ contact, setContact }) {
           </tr>
         </thead>
         <tbody>
-          {contact.map((item, index) => (
+          {filteredContacts.map((item, index) => (
             <Contact key={item.id} item={item} index={index} onDelete={handleDelete} />
           ))}
         </tbody>

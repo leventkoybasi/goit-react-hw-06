@@ -1,18 +1,22 @@
-/* eslint-disable react/prop-types */
-import { Formik, Form, Field } from "formik";
+import { Formik, Form, Field } from 'formik';
+import { useDispatch } from 'react-redux';
+import { setSearchTerm } from '../store/filtersSlice';
 
 const initialFormValues = {
-  search: "",
+  search: '',
 };
 
-function SearchBox({ handleSearch, onChange }) {
+function SearchBox({ handleSearch }) {
+  const dispatch = useDispatch();
+
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault();
     }
   };
+
   return (
-    <Formik initialValues={initialFormValues} onSubmit={handleSearch}>
+    <Formik initialValues={initialFormValues} onSubmit={(values) => handleSearch(values.search)}>
       {({ handleChange }) => (
         <Form className='my-5 pb-5'>
           <div className='input-group'>
@@ -24,7 +28,7 @@ function SearchBox({ handleSearch, onChange }) {
               onKeyDown={handleKeyDown}
               onChange={(e) => {
                 handleChange(e);
-                onChange(e);
+                dispatch(setSearchTerm(e.target.value));
               }}
             />
             <span className='input-group-text'>

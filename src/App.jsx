@@ -1,66 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import style from './App.module.css';
-import { contactData } from './data/contactData.js';
-
-// Components
+import { useDispatch } from 'react-redux';
 import ContactForm from './components/ContactForm';
 import ContactList from './components/ContactList';
 import SearchBox from './components/SearchBox';
 import ErrorModal from './components/ErrorModal.jsx';
-// Variables
-const savedContacts = window.localStorage.getItem('Contacts');
+import { setSearchTerm } from './store/filtersSlice';
+import { setContacts } from './store/contactsSlice';
+import { contactData } from './data/contactData.js';
 
 function App() {
-  const getContact = () => {
-    return savedContacts ? JSON.parse(savedContacts) : contactData;
-  };
-  //States
-  const [contact, setContact] = useState(() => getContact());
-
   const [error, setError] = useState(false);
+  const dispatch = useDispatch();
 
-  //Submit Action
-  const handleSubmit = (values, actions) => {
-    setContact((prevContacts) => {
-      const updatedContacts = [...prevContacts, values];
-      window.localStorage.setItem('Contacts', JSON.stringify(updatedContacts));
-      return updatedContacts;
-    });
-    actions.resetForm();
-  };
-  //onChange Action
-  const onChange = (e) => {
-    const searchValue = e.target.value;
-    handleSearch(searchValue);
-  };
+  useEffect(() => {
+    dispatch(setContacts(contactData));
+  }, [dispatch]);
 
-  //Search Action
   const handleSearch = (searchValue) => {
+    dispatch(setSearchTerm(searchValue));
     if (searchValue.trim() === '') {
-      if (savedContacts) {
-        setContact(JSON.parse(savedContacts));
-      } else if (!savedContacts) {
-        setContact(contactData);
-        return;
-      }
-      return;
-    }
-    //Filter Action
-    const filteredContacts = contact.filter(
-      (item) =>
-        item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-        item.phone.toString().includes(searchValue) ||
-        item.email.toLowerCase().includes(searchValue.toLowerCase())
-    );
-
-    if (filteredContacts.length === 0) {
-      setError(true);
-    } else {
       setError(false);
-      setContact(filteredContacts);
-      searchValue = '';
     }
   };
+
   return (
     <>
       <div className={`${style.shadowContainer}  w-md-100 m-md-auto`}>
@@ -73,17 +36,16 @@ function App() {
           </div>
           <div className='row pt-5 '>
             <div className='col-12 col-xl-4 mb-4 px-lg-5 px-sm-2'>
-              <SearchBox handleSearch={handleSearch} onChange={onChange} />
-              <ContactForm handleSubmit={handleSubmit} />
+              <SearchBox handleSearch={handleSearch} />
+              <ContactForm />
             </div>
             <div className='col-12 col-xl-8 p-sm-0'>
               {!error ? (
-                <ContactList contact={contact} setContact={setContact} />
+                <ContactList />
               ) : (
                 <ErrorModal
                   onClose={() => {
                     setError(false);
-                    getContact();
                   }}
                 />
               )}
